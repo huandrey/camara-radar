@@ -83,7 +83,7 @@ npm run dev
 npm run cron:backfill
 ```
 
-#### Modo Diário (1x por dia às 02:00)
+#### Modo Diário (1x por dia às 18:30)
 
 ```bash
 npm run cron:daily
