@@ -1,6 +1,6 @@
 {
   "name": "camara-pipelines",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Sistema modular de coleta de dados para dados da Câmara Municipal de Campina Grande",
   "main": "dist/index.js",
   "type": "module",
