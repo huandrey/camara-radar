@@ -136,4 +136,88 @@ export async function updateDetailStatus(
   }
 }
 
+/**
+ * Interface para paginação de sessões
+ */
+export interface SessionsListResult {
+  sessions: Session[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/**
+ * Lista sessões com paginação
+ */
+export async function listSessions(
+  page: number = 1,
+  limit: number = 10
+): Promise<SessionsListResult> {
+  const supabase = getSupabaseClient();
+
+  try {
+    // Validar parâmetros
+    const validPage = Math.max(1, page);
+    const validLimit = Math.min(Math.max(1, limit), 100);
+    const offset = (validPage - 1) * validLimit;
+
+    // Buscar total de registros
+    const { count, error: countError } = await supabase
+      .from('sessions')
+      .select('*', { count: 'exact', head: true });
+
+    if (countError) {
+      throw countError;
+    }
+
+    const total = count || 0;
+    const totalPages = Math.ceil(total / validLimit);
+
+    // Buscar sessões
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('*')
+      .order('opening_date', { ascending: false })
+      .range(offset, offset + validLimit - 1);
+
+    if (error) {
+      throw error;
+    }
+
+    // Converter do formato do banco para Session
+    const sessions: Session[] = (data || []).map((row) => ({
+      id: row.id,
+      title: row.title,
+      type: row.type,
+      openingDate: new Date(row.opening_date),
+      legislature: row.legislature,
+      legislativeSession: row.legislative_session,
+      url: row.url,
+      detalhesColetados: row.detalhes_coletados,
+      scrapedAt: new Date(row.scraped_at),
+    }));
+
+    logger.debug({ page: validPage, limit: validLimit, total }, 'Listed sessions');
+
+    return {
+      sessions,
+      pagination: {
+        page: validPage,
+        limit: validLimit,
+        total,
+        totalPages,
+      },
+    };
+  } catch (error) {
+    logger.error(
+      { page, limit, error: error instanceof Error ? error.message : String(error) },
+      'Error listing sessions'
+    );
+    throw error;
+  }
+}
+
 

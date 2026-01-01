@@ -1,5 +1,3 @@
-import type { PipelineEvent } from '../shared/types/index.js';
-
 /**
  * Tipos de eventos do sistema
  */
