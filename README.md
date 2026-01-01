@@ -93,6 +93,42 @@ npm run cron:daily
 
 Para coleta sob demanda de uma sessão específica, use a função `scrapeSessionOnDemand()` do módulo `src/api/on-demand.ts`.
 
+## API HTTP
+
+O Câmara Radar expõe uma API REST para consulta e coleta de dados sob demanda.
+
+### Iniciar o servidor
+
+```bash
+npm run api:dev
+```
+
+O servidor estará disponível em `http://localhost:3000`.
+
+### Documentação
+
+Para documentação completa dos endpoints e exemplos de uso, consulte [docs/API.md](docs/API.md).
+
+### Exemplos rápidos
+
+```bash
+# Obter detalhes de uma sessão
+curl http://localhost:3000/api/sessions/123
+
+# Acionar coleta de dados
+curl -X POST http://localhost:3000/api/sessions/123/collect
+
+# Listar sessões
+curl "http://localhost:3000/api/sessions?page=1&limit=10"
+```
+
+### Endpoints disponíveis
+
+- `GET /api/health` - Health check
+- `GET /api/sessions/:id` - Obter detalhes de uma sessão
+- `POST /api/sessions/:id/collect` - Acionar coleta de dados
+- `GET /api/sessions` - Listar sessões com paginação
+
 ## Pipeline de Sessões
 
 ### Funcionalidades
