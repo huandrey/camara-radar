@@ -15,9 +15,9 @@ O projeto é estruturado como um sistema de pipelines modulares, onde cada pipel
 
 ```
 src/
-├── pipelines/          # Pipelines modulares
-│   └── sessions/      # Pipeline de sessões (implementado)
-├── shared/            # Módulos compartilhados
+├── pipelines/        # Pipelines modulares
+│   └── sessions/     # Pipeline de sessões (implementado)
+├── shared/           # Módulos compartilhados
 │   ├── http/         # HTTP client
 │   ├── logger/       # Sistema de logging
 │   ├── metrics/      # Sistema de métricas
