@@ -20,19 +20,6 @@ interface ErrorResponse {
   details?: unknown;
 }
 
-// Middleware de tratamento de erros
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error({ error: err.message, path: _req.path }, 'Unhandled error');
-  
-  const errorResponse: ErrorResponse = {
-    error: 'Internal server error',
-    code: 'INTERNAL_ERROR',
-    details: process.env.NODE_ENV === 'development' ? { message: err.message } : undefined,
-  };
-  
-  res.status(500).json(errorResponse);
-});
-
 // Health check endpoint
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
@@ -211,6 +198,19 @@ app.get('/api/sessions', async (req: Request, res: Response) => {
     };
     return res.status(500).json(errorResponse);
   }
+});
+
+// Middleware de tratamento de erros (deve vir após todas as rotas)
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  logger.error({ error: err.message, path: _req.path }, 'Unhandled error');
+  
+  const errorResponse: ErrorResponse = {
+    error: 'Internal server error',
+    code: 'INTERNAL_ERROR',
+    details: process.env.NODE_ENV === 'development' ? { message: err.message } : undefined,
+  };
+  
+  res.status(500).json(errorResponse);
 });
 
 // Start server
