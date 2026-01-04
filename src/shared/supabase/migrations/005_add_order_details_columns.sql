@@ -1,0 +1,5 @@
+
+ALTER TABLE session_order_of_day
+ADD COLUMN IF NOT EXISTS ementa TEXT,
+ADD COLUMN IF NOT EXISTS situacao TEXT,
+ADD COLUMN IF NOT EXISTS observacao TEXT;
