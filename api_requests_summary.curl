@@ -1,0 +1,2 @@
+# Get Session Details (Should now include start/end time from summary)
+curl --location 'http://localhost:3333/api/sessions/1000222'
