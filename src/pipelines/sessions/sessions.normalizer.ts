@@ -40,7 +40,7 @@ export function normalizeSession(raw: SessionRaw): Session {
     }
 
     const session: Session = {
-      id: raw.id,
+      sessionId: raw.id,
       title,
       type,
       openingDate,
