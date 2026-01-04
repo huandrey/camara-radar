@@ -1,5 +1,9 @@
 import { runSessionsPipeline } from '../pipelines/sessions/sessions.pipeline.js';
-import { getSessionById, updateDetailStatus } from '../pipelines/sessions/sessions.repository.js';
+import { getSessionByExternalId, updateDetailStatus, upsertSessions } from '../pipelines/sessions/sessions.repository.js';
+import { updateSessionDetails } from '../pipelines/sessions/sessions.repository.details.js';
+import { fetchSessionDetails } from '../pipelines/sessions/sessions.details.fetcher.js';
+import { fetchSessionSummary } from '../pipelines/sessions/sessions.summary.fetcher.js';
+import { parseSessionText } from '../pipelines/sessions/sessions.parser.js';
 import { pipelineEventEmitter } from '../events/event-emitter.js';
 import { createLogger } from '../shared/logger/logger.js';
 import type { Session } from '../pipelines/sessions/sessions.types.js';
@@ -13,10 +17,57 @@ export async function scrapeSessionOnDemand(sessionId: number): Promise<Session>
   logger.info({ sessionId }, 'On-demand scraping requested');
 
   // Verificar se sessão existe e obter status atual
-  const existingSession = await getSessionById(sessionId);
+  let existingSession = await getSessionByExternalId(sessionId);
 
+  // Se não existir, tentar buscar na API e criar
   if (!existingSession) {
-    throw new Error(`Session ${sessionId} not found`);
+    logger.info({ sessionId }, 'Session not found in database, attempting to fetch from source');
+    
+    try {
+      const { details, raw } = await fetchSessionDetails(sessionId);
+      const summary = await fetchSessionSummary(sessionId);
+      
+      // Merge summary data into details
+      if (summary.startTime) details.startTime = new Date(summary.startTime);
+      if (summary.endTime) details.endTime = new Date(summary.endTime);
+      // Note: boardMembers are not yet in the Session type or DB schema, 
+      // but we are fetching them as requested. We might need to add a column later.
+      
+      // Parse dos dados básicos a partir do __str__
+      const parsedInfo = parseSessionText(raw.__str__);
+      
+      // Construir objeto Session completo
+      const newSession: Session = {
+        sessionId: raw.id,
+        title: raw.__str__,
+        type: parsedInfo.type,
+        legislature: parsedInfo.legislature,
+        legislativeSession: parsedInfo.legislativeSession,
+        openingDate: details.startTime || new Date(), // Fallback se não tiver data
+        url: `https://sapl.campinagrande.pb.leg.br/sessao/${raw.id}`,
+        detalhesColetados: 'COLETADO',
+        scrapedAt: new Date(),
+        ...details
+      };
+
+      // Salvar no banco
+      await upsertSessions([newSession]);
+      
+      // Atualizar detalhes específicos (caso upsertSessions não cubra tudo ou para garantir)
+      await updateSessionDetails(sessionId, details);
+
+      logger.info({ sessionId }, 'Session created successfully on-demand');
+      
+      // Retornar a sessão criada
+      const createdSession = await getSessionByExternalId(sessionId);
+      if (!createdSession) throw new Error('Failed to retrieve created session');
+      
+      return createdSession;
+
+    } catch (error) {
+      logger.error({ sessionId, error }, 'Failed to create session on-demand');
+      throw new Error(`Session ${sessionId} not found and could not be created`);
+    }
   }
 
   const currentStatus = existingSession.detalhesColetados;
@@ -49,36 +100,26 @@ export async function scrapeSessionOnDemand(sessionId: number): Promise<Session>
       sessionId,
     });
 
-    // Executar pipeline em modo on-demand
-    // Por enquanto, apenas atualiza o status
-    // No futuro, aqui faria scraping dos detalhes da sessão
-    const result = await runSessionsPipeline({
-      mode: 'on-demand',
-      sessionId,
-    });
+    // Realizar o scraping dos detalhes
+    const { details } = await fetchSessionDetails(sessionId);
+    const summary = await fetchSessionSummary(sessionId);
 
-    if (!result.success) {
-      throw result.error || new Error('Pipeline execution failed');
-    }
+    // Merge summary data
+    if (summary.startTime) details.startTime = new Date(summary.startTime);
+    if (summary.endTime) details.endTime = new Date(summary.endTime);
 
-    // Atualizar status para COLETADO
-    await updateDetailStatus(sessionId, 'COLETADO');
+    // Salvar no banco
+    await updateSessionDetails(sessionId, details);
 
-    // Emitir evento de coleta concluída
-    pipelineEventEmitter.emitDetailCollected({
-      timestamp: new Date(),
-      pipeline: 'sessions',
-      sessionId,
-    });
-
-    // Buscar sessão atualizada
-    const updatedSession = await getSessionById(sessionId);
+    // Retornar sessão atualizada
+    const updatedSession = await getSessionByExternalId(sessionId);
+    
     if (!updatedSession) {
-      throw new Error(`Session ${sessionId} not found after update`);
+       throw new Error('Failed to retrieve updated session');
     }
 
-    logger.info({ sessionId }, 'On-demand scraping completed successfully');
     return updatedSession;
+
   } catch (error) {
     const err = error instanceof Error ? error : new Error(String(error));
     logger.error({ sessionId, error: err.message }, 'On-demand scraping failed');

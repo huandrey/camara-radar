@@ -1,0 +1,5 @@
+# Get Order of Day
+curl --location 'http://localhost:3333/api/sessions/1000222/ordem-dia'
+
+# Get Attendance
+curl --location 'http://localhost:3333/api/sessions/1000222/presenca'

@@ -20,7 +20,7 @@ function extractSessionId(urlPath: string): number {
  * Extrai informações do texto da sessão
  * Formato esperado: "119ª SESSÃO ORDINÁRIA da 1ª Sessão Legislativa da 19ª Legislatura"
  */
-function parseSessionText(fullText: string): {
+export function parseSessionText(fullText: string): {
   type: string;
   legislativeSession: string;
   legislature: string;

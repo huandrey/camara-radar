@@ -1,0 +1,16 @@
+# Health Check
+curl --location 'http://localhost:3333/api/health'
+
+# List Sessions (Default)
+curl --location 'http://localhost:3333/api/sessions'
+
+# List Sessions (With Pagination)
+curl --location 'http://localhost:3333/api/sessions?limit=10&offset=0'
+
+# List Sessions (Filter by Status)
+# Status: NAO_COLETADO, PROCESSANDO, COLETADO, ERRO
+curl --location 'http://localhost:3333/api/sessions?status=COLETADO'
+
+# Get Session Details (On-Demand Scraping)
+# Exemplo com ID 1000222
+curl --location 'http://localhost:3333/api/sessions/1000222'

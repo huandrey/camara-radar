@@ -7,6 +7,7 @@ interface EnvConfig {
   SUPABASE_KEY: string;
   NODE_ENV: 'development' | 'production' | 'test';
   LOG_LEVEL?: string;
+  PORT: number;
 }
 
 function getEnvVar(name: string): string {
@@ -33,6 +34,7 @@ function validateEnv(): EnvConfig {
     SUPABASE_KEY: getEnvVar('SUPABASE_KEY'),
     NODE_ENV: nodeEnv,
     LOG_LEVEL: getEnvVarOptional('LOG_LEVEL', 'info'),
+    PORT: parseInt(getEnvVarOptional('PORT', '3333'), 10),
   };
 }
 

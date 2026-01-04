@@ -9,7 +9,8 @@ export type { DetailStatus } from '../../shared/types/index.js';
  * Sessão legislativa normalizada
  */
 export interface Session {
-  id: number;
+  id?: string; // UUID do Supabase (opcional na criação)
+  sessionId: number; // ID externo da Câmara
   title: string;
   type: string;
   openingDate: Date;
@@ -18,6 +19,16 @@ export interface Session {
   url: string;
   detalhesColetados: DetailStatus;
   scrapedAt: Date;
+  
+  // Campos detalhados (opcionais pois podem não ter sido coletados ainda)
+  sessionNumber?: number;
+  startTime?: Date;
+  endTime?: Date;
+  audioUrl?: string;
+  videoUrl?: string;
+  pautaUrl?: string;
+  ataUrl?: string;
+  anexoUrl?: string;
 }
 
 /**

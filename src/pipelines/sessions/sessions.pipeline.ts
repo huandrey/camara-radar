@@ -92,7 +92,7 @@ export async function runSessionsPipeline(
             pipelineEventEmitter.emitSessionDiscovered({
               timestamp: new Date(),
               pipeline: 'sessions',
-              sessionId: session.id,
+              sessionId: session.sessionId,
               sessionTitle: session.title,
             });
           }

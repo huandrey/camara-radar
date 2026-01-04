@@ -3,7 +3,8 @@ CREATE TYPE detail_status AS ENUM ('NAO_COLETADO', 'PROCESSANDO', 'COLETADO', 'E
 
 -- Create sessions table
 CREATE TABLE IF NOT EXISTS sessions (
-  id INTEGER PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id INTEGER NOT NULL UNIQUE,
   title TEXT NOT NULL,
   type TEXT NOT NULL,
   opening_date TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -17,8 +18,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 -- Create indexes
+CREATE INDEX IF NOT EXISTS idx_sessions_session_id ON sessions(session_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_opening_date ON sessions(opening_date);
 CREATE INDEX IF NOT EXISTS idx_sessions_scraped_at ON sessions(scraped_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_detalhes_coletados ON sessions(detalhes_coletados);
-
-
