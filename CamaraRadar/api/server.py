@@ -20,6 +20,19 @@ def health():
     return jsonify({"status": "ok"})
 
 
+@app.route('/debug/config', methods=['GET'])
+def debug_config():
+    """Debug endpoint to check environment configuration"""
+    import os
+    return jsonify({
+        "supabase_url_configured": bool(os.environ.get("SUPABASE_URL")),
+        "supabase_key_configured": bool(os.environ.get("SUPABASE_KEY")),
+        "gemini_key_configured": bool(os.environ.get("GEMINI_API_KEY")),
+        "gemini_model": os.environ.get("GEMINI_MODEL", "not-set"),
+        "environment": os.environ.get("RENDER", "local")
+    })
+
+
 @app.route('/api/resumo', methods=['GET'])
 def resumo():
     """

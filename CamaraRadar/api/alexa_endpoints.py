@@ -10,8 +10,9 @@ from typing import Dict, List, Optional
 import logging
 from google import genai
 
-# Carrega variáveis do arquivo .env (busca na raiz do projeto)
-load_dotenv(dotenv_path='../../.env')
+# Carrega variáveis do arquivo .env (apenas em desenvolvimento local)
+# Em produção (Render, Railway, etc), as variáveis vêm do ambiente
+load_dotenv(dotenv_path='../../.env', override=False)
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -23,6 +24,11 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("LLM_API_KEY")  # Gemini API Key
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash-exp")  # Modelo padrão
+
+# Log de configuração (para debug)
+logger.info(f"Supabase URL configured: {bool(SUPABASE_URL)}")
+logger.info(f"Supabase Key configured: {bool(SUPABASE_KEY)}")
+logger.info(f"Gemini API Key configured: {bool(GEMINI_API_KEY)}")
 
 # Inicializa cliente Gemini se houver chave
 gemini_client = None
