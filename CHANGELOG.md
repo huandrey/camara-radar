@@ -155,3 +155,4 @@ Data is collected from:
 - API endpoints for querying collected data
 - Webhook support for event notifications
 
+
