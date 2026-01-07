@@ -48,3 +48,4 @@ Primeiro release público do sistema de scraping da Câmara Municipal de Campina
 
 **📋 Changelog completo**: Veja [CHANGELOG.md](CHANGELOG.md) para detalhes técnicos completos.
 
+
