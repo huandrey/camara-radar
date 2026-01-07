@@ -1,0 +1,12 @@
+Edite o arquivo .env na RAIZ do projeto e mude a linha:
+
+DE:
+LLM_API_URL=https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent
+
+PARA:
+LLM_API_URL=https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-exp:generateContent
+
+Ou use este comando:
+sed -i '' 's|gemini-pro|gemini-2.0-flash-exp|g' .env
+sed -i '' 's|v1beta|v1|g' .env
+
